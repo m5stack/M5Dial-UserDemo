@@ -1,12 +1,12 @@
 /**
  * @file hal.cpp
  * @author Forairaaaaa
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-06-28
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 #include "hal.h"
 #include <esp_log.h>
@@ -14,14 +14,11 @@
 #include <string.h>
 #include "file_system/wear_levelling.h"
 
-
 #define delay(ms) vTaskDelay(pdMS_TO_TICKS(ms))
-
 
 namespace HAL
 {
     const char* TAG = "hal";
-
 
     void HAL::_display_init()
     {
@@ -29,10 +26,12 @@ namespace HAL
         display.init();
 
         /* Init tp right after lcd (sharing rst pin) */
+
+        display.touch()->~ITouch();
+
+        i2c_init(I2C_NUM_0, HAL_PIN_TP_I2C_SDA, HAL_PIN_TP_I2C_SCL, 100000, true);
         tp.init();
         i2c_scan(I2C_NUM_0);
-        
-
 
         // display.setColorDepth(16);
         // display.setTextSize(3);
@@ -48,16 +47,10 @@ namespace HAL
         // }
         // delay(200);
 
-
-        /* <BUG> enable this printing will effect encoder (pcnt) 's reding, dont know why  */
-        // printf("free block: %d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
-
         /* Create canvas */
         canvas = new LGFX_Sprite(&display);
         canvas->createSprite(display.width(), display.height());
         // printf("free block: %d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
-
-
 
         /* Simple start up anim */
         display.setBrightness(0);
@@ -77,45 +70,48 @@ namespace HAL
         delay(200);
 
         // display.setBrightness(128);
-
     }
 
-
-    void HAL::_encoder_moved_callback(SIMPLE_ENCODER_PCNT::Encoder* encoder, void* userData)
+    static int _last_count = 0;
+    void HAL::_encoder_moved_callback(ESP32Encoder* encoder, void* userData)
     {
-        if (encoder->getDirection() < 1)
+        int new_shit = static_cast<int>(encoder->getCount()) / 2;
+        if (new_shit < _last_count)
         {
             // printf("???\n");
             ((HAL*)userData)->buzz.tone(7000, 20);
+            _last_count = new_shit;
         }
-        else 
+        else
         {
             // printf("666\n");
             ((HAL*)userData)->buzz.tone(6000, 20);
+            _last_count = new_shit;
         }
     }
 
-
-    void HAL::_encoder_button_pressed_callback(SIMPLE_ENCODER_PCNT::Button* button, void* userData)
+    void HAL::_encoder_button_pressed_callback(Button* button, void* userData)
     {
         // printf("114514\n");
         ((HAL*)userData)->buzz.tone(2000, 20);
     }
 
-
     void HAL::_encoder_init()
     {
         /* Encoder */
         // encoder.init(41, 40, 42);
-        encoder.init(HAL_PIN_ENCODER_A, HAL_PIN_ENCODER_B, HAL_PIN_PWR_WAKE_UP);
-        
+        // encoder.init(HAL_PIN_ENCODER_A, HAL_PIN_ENCODER_B, HAL_PIN_PWR_WAKE_UP);
+        encoder.attachHalfQuad(HAL_PIN_ENCODER_A, HAL_PIN_ENCODER_B);
+
         /* Set moved callback */
+        // encoder.setMovedCallback(_encoder_moved_callback, this);
         encoder.setMovedCallback(_encoder_moved_callback, this);
 
         /* Set button pressed callback */
+        // encoder.btn.setPressedCallback(_encoder_button_pressed_callback, this);
+        encoder.btn.setPin(HAL_PIN_PWR_WAKE_UP);
         encoder.btn.setPressedCallback(_encoder_button_pressed_callback, this);
     }
-
 
     void HAL::_buzz_init()
     {
@@ -128,44 +124,34 @@ namespace HAL
         // buzz.tone(4000, 50);
     }
 
-
-
     void HAL::init()
     {
         ESP_LOGI(TAG, "init");
 
-
         /* Start power holding */
         powerOn();
 
-
         _encoder_init();
-
 
         /* Init i2c port 0 (for Tp) */
         // i2c_init(I2C_NUM_0, 11, 12, 100000, true);
-        i2c_init(I2C_NUM_0, HAL_PIN_TP_I2C_SDA, HAL_PIN_TP_I2C_SCL, 100000, true);
-
+        // i2c_init(I2C_NUM_0, HAL_PIN_TP_I2C_SDA, HAL_PIN_TP_I2C_SCL, 100000, true);
 
         /* Display init */
         _display_init();
 
-
-
         _buzz_init();
 
-        // /* Init file system */
-        // wear_levelling_init();
+// /* Init file system */
+// wear_levelling_init();
 
-        /* Init lvgl */
-        #if LVGL_ENABLE
+/* Init lvgl */
+#if LVGL_ENABLE
         lvgl.init(&display, &encoder, &tp);
-        #endif
-
+#endif
 
         // _encoder_init();
     }
-
 
     void HAL::powerOn()
     {
@@ -179,7 +165,6 @@ namespace HAL
         gpio_set_level(pin_pwr_holding, 1);
     }
 
-
     void HAL::powerOff()
     {
         gpio_num_t pin_pwr_holding = (gpio_num_t)HAL_PIN_PWR_HOLDING;
@@ -191,18 +176,6 @@ namespace HAL
         /* Release power holding */
         gpio_set_level(pin_pwr_holding, 0);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     bool i2c_init(i2c_port_t i2cPort, int sda, int scl, uint32_t clkSpeed, bool pullUpEnable)
     {
@@ -248,94 +221,92 @@ namespace HAL
         return true;
     }
 
-
     void encoder_test(HAL& hal)
     {
-        int shit = 0;
-        int old_shit = 0;
-        hal.encoder.resetPosition();
+        // int shit = 0;
+        // int old_shit = 0;
+        // hal.encoder.resetPosition();
 
-        while (1)
-        {
-            if (hal.encoder.wasMoved())
-            {
-                // printf("%d %d\n", hal.encoder.btn.read(), hal.encoder.getPosition());
-                if (hal.encoder.getPosition() > old_shit)
-                {
-                    shit++;
-                }
-                else 
-                {
-                    shit--;
-                }
-                printf("%d\n", shit);
-                old_shit = hal.encoder.getPosition();
-            }
+        // while (1)
+        // {
+        //     if (hal.encoder.wasMoved())
+        //     {
+        //         // printf("%d %d\n", hal.encoder.btn.read(), hal.encoder.getPosition());
+        //         if (hal.encoder.getPosition() > old_shit)
+        //         {
+        //             shit++;
+        //         }
+        //         else
+        //         {
+        //             shit--;
+        //         }
+        //         printf("%d\n", shit);
+        //         old_shit = hal.encoder.getPosition();
+        //     }
 
-            if (hal.encoder.btn.pressed())
-            {
-                // hal.encoder.resetPosition();
-                // old_shit = 0;
-                // printf("%d %d\n", hal.encoder.btn.read(), hal.encoder.getPosition());
+        //     if (hal.encoder.btn.pressed())
+        //     {
+        //         // hal.encoder.resetPosition();
+        //         // old_shit = 0;
+        //         // printf("%d %d\n", hal.encoder.btn.read(), hal.encoder.getPosition());
 
-                shit = 0;
-                printf("%d\n", shit);
+        //         shit = 0;
+        //         printf("%d\n", shit);
 
-            }
+        //     }
 
-            delay(1);
-        }
+        //     delay(1);
+        // }
     }
-
 
     void tp_test(HAL& hal)
     {
-        // i2c_scan(I2C_NUM_0);
+        // // i2c_scan(I2C_NUM_0);
+        // // while (1)
+        // // {
+        // //     i2c_scan(I2C_NUM_0);
+        // //     delay(500);
+        // // }
+
+        // hell:
+        // hal.display.fillScreen(TFT_WHITE);
+        // hal.display.fillCircle(hal.display.width() / 2, hal.display.height() / 2, 2, TFT_WHITE);
+        // hal.display.drawCircle(hal.display.width() / 2, hal.display.height() / 2, hal.display.width() / 2 - 1, TFT_GREEN);
+        // hal.display.drawCircle(hal.display.width() / 2, hal.display.height() / 2, hal.display.width() / 4, TFT_GREEN);
+        // hal.display.drawLine(0, hal.display.height() / 2, hal.display.width(), hal.display.height() / 2, TFT_GREEN);
+        // hal.display.drawLine(hal.display.width() / 2, 0, hal.display.width() / 2, hal.display.height(), TFT_GREEN);
+
+        // // uint8_t shit = 0;
         // while (1)
         // {
-        //     i2c_scan(I2C_NUM_0);
-        //     delay(500);
+        //     // printf("%d %d %d\n", hal.tp.readPos().touch_num, hal.tp.readPos().x, hal.tp.readPos().y);
+        //     // delay(5);
+
+        //     if (hal.tp.isTouched())
+        //     {
+        //         hal.tp.update();
+        //         printf("%d %d %d\n", hal.tp.getTouchPointBuffer().touch_num, hal.tp.getTouchPointBuffer().x,
+        //         hal.tp.getTouchPointBuffer().y); hal.display.fillCircle(hal.tp.getTouchPointBuffer().x,
+        //         hal.tp.getTouchPointBuffer().y, 2, TFT_BLUE);
+        //     }
+
+        //     if (hal.btn.pressed())
+        //     {
+        //         goto hell;
+        //     }
+
+        //     // shit++;
+        //     // printf("%d\n", shit);
+        //     delay(5);
         // }
-
-        hell:
-        hal.display.fillScreen(TFT_WHITE);
-        hal.display.fillCircle(hal.display.width() / 2, hal.display.height() / 2, 2, TFT_WHITE);
-        hal.display.drawCircle(hal.display.width() / 2, hal.display.height() / 2, hal.display.width() / 2 - 1, TFT_GREEN);
-        hal.display.drawCircle(hal.display.width() / 2, hal.display.height() / 2, hal.display.width() / 4, TFT_GREEN);
-        hal.display.drawLine(0, hal.display.height() / 2, hal.display.width(), hal.display.height() / 2, TFT_GREEN);
-        hal.display.drawLine(hal.display.width() / 2, 0, hal.display.width() / 2, hal.display.height(), TFT_GREEN);
-
-        // uint8_t shit = 0;
-        while (1)
-        {
-            // printf("%d %d %d\n", hal.tp.readPos().touch_num, hal.tp.readPos().x, hal.tp.readPos().y);
-            // delay(5);
-
-            if (hal.tp.isTouched())
-            {
-                hal.tp.update();
-                printf("%d %d %d\n", hal.tp.getTouchPointBuffer().touch_num, hal.tp.getTouchPointBuffer().x, hal.tp.getTouchPointBuffer().y);
-                hal.display.fillCircle(hal.tp.getTouchPointBuffer().x, hal.tp.getTouchPointBuffer().y, 2, TFT_BLUE);
-            }
-
-            if (hal.encoder.btn.pressed())
-            {
-                goto hell;
-            }
-
-            // shit++;
-            // printf("%d\n", shit);
-            delay(5);
-        }
     }
-
 
     void i2c_scan(i2c_port_t i2c_master_port)
     {
 
-        uint8_t WRITE_BIT = I2C_MASTER_WRITE;  /*!< I2C master write */
+        uint8_t WRITE_BIT = I2C_MASTER_WRITE; /*!< I2C master write */
         // uint8_t READ_BIT = I2C_MASTER_READ;    /*!< I2C master read */
-        uint8_t ACK_CHECK_EN = 0x1;            /*!< I2C master will check ack from slave*/
+        uint8_t ACK_CHECK_EN = 0x1; /*!< I2C master will check ack from slave*/
         // uint8_t ACK_CHECK_DIS = 0x0;           /*!< I2C master will not check ack from slave */
 
         uint8_t address;
@@ -351,13 +322,18 @@ namespace HAL
                 i2c_master_start(cmd);
                 i2c_master_write_byte(cmd, (address << 1) | WRITE_BIT, ACK_CHECK_EN);
                 i2c_master_stop(cmd);
-                esp_err_t ret = i2c_master_cmd_begin(i2c_master_port, cmd, portMAX_DELAY);
+                esp_err_t ret = i2c_master_cmd_begin(i2c_master_port, cmd, pdMS_TO_TICKS(50));
                 i2c_cmd_link_delete(cmd);
-                if (ret == ESP_OK) {
+                if (ret == ESP_OK)
+                {
                     printf("%02x ", address);
-                } else if (ret == ESP_ERR_TIMEOUT) {
+                }
+                else if (ret == ESP_ERR_TIMEOUT)
+                {
                     printf("UU ");
-                } else {
+                }
+                else
+                {
                     printf("-- ");
                 }
             }
@@ -365,7 +341,6 @@ namespace HAL
         }
         // i2c_driver_delete(i2c_master_port);
     }
-
 
     void rtc_test(HAL& hal)
     {
@@ -386,8 +361,4 @@ namespace HAL
         //     delay(1000);
         // }
     }
-}
-
-
-
-
+} // namespace HAL

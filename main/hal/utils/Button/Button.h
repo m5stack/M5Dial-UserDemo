@@ -9,8 +9,6 @@
 // #include "Arduino.h"
 #include <stdio.h>
 
-namespace SIMPLE_ENCODER_PCNT {
-
     class Button
     {
         public:
@@ -52,6 +50,5 @@ namespace SIMPLE_ENCODER_PCNT {
             void (*_pressed_callback)(Button*, void*) = nullptr;
     };
 
-}
 
 // #endif

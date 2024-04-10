@@ -20,7 +20,9 @@
 // #include "lvgl/lvgl.h"
 #include <lvgl.h>
 // #include "../../encoder/simple_encoder.h"
-#include <simple_encoder_pcnt.h>
+// #include <simple_encoder_pcnt.h>
+#include "../../utils/ESP32Encoder/src/ESP32Encoder.h"
+#include "../../utils/Button/Button.h"
 #include "../../tp/hal_tp.hpp"
 
 /*********************
@@ -36,7 +38,7 @@
  * GLOBAL PROTOTYPES
  **********************/
 // void lv_port_indev_init(SIMPLE_ENCODER::ENCODER* encoder);
-void lv_port_indev_init(SIMPLE_ENCODER_PCNT::Encoder* encoder, FT3267::TP_FT3267* tp);
+void lv_port_indev_init(ESP32Encoder* encoder, FT3267::TP_FT3267* tp);
 
 /**********************
  *      MACROS

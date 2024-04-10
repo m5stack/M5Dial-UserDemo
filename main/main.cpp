@@ -1,12 +1,12 @@
 /**
  * @file va_meter_firmware.cpp
  * @author Forairaaaaa
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-07-07
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 #include "hal/hal.h"
 #include <freertos/FreeRTOS.h>
@@ -16,14 +16,11 @@
 #include "apps/launcher/launcher.h"
 #include "apps/app_factory_test/app_factory_test.h"
 
-
 #define delay(ms) vTaskDelay(pdMS_TO_TICKS(ms))
-
 
 extern "C" void app_main(void)
 {
     HAL::HAL hal;
-
 
     /* Hardware init */
     hal.init();
@@ -31,14 +28,12 @@ extern "C" void app_main(void)
     // HAL::tp_test(hal);
     // HAL::rtc_test(hal);
 
-
-    
-    /* Check factory test mode */
-    #ifdef ENABLE_FACTORY_TEST
+/* Check factory test mode */
+#ifdef ENABLE_FACTORY_TEST
     bool factory_test_mode = false;
 
     if (!hal.encoder.btn.read())
-    {   
+    {
         uint16_t time_count = 0;
         while (!hal.encoder.btn.read())
         {
@@ -68,8 +63,7 @@ extern "C" void app_main(void)
             factory_test.onRunning();
         }
     }
-    #endif
-
+#endif
 
     /* Start launcher */
     MOONCAKE::USER_APP::Launcher app_launcher;
