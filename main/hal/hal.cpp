@@ -26,10 +26,6 @@ namespace HAL
         display.init();
 
         /* Init tp right after lcd (sharing rst pin) */
-
-        display.touch()->~ITouch();
-
-        i2c_init(I2C_NUM_0, HAL_PIN_TP_I2C_SDA, HAL_PIN_TP_I2C_SCL, 100000, true);
         tp.init();
         i2c_scan(I2C_NUM_0);
 
@@ -135,7 +131,7 @@ namespace HAL
 
         /* Init i2c port 0 (for Tp) */
         // i2c_init(I2C_NUM_0, 11, 12, 100000, true);
-        // i2c_init(I2C_NUM_0, HAL_PIN_TP_I2C_SDA, HAL_PIN_TP_I2C_SCL, 100000, true);
+        i2c_init(I2C_NUM_0, HAL_PIN_TP_I2C_SDA, HAL_PIN_TP_I2C_SCL, 100000, true);
 
         /* Display init */
         _display_init();
