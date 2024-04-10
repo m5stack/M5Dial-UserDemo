@@ -1,19 +1,17 @@
 /**
  * @file app_factory_test.cpp
  * @author Forairaaaaa
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-08-11
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 #include "app_factory_test.h"
 #include "../common_define.h"
 
-
 using namespace MOONCAKE::USER_APP;
-
 
 void FactoryTest::onSetup()
 {
@@ -27,19 +25,10 @@ void FactoryTest::onSetup()
     _data.hal = (HAL::HAL*)getUserData();
 }
 
-
 /* Life cycle */
 void FactoryTest::onCreate()
 {
     _log("onCreate");
-
-
-    // _data.hal->_encoder_init();
-    /* Encoder */
-    // _data.hal->encoder.init(41, 40, 42);
-    _data.hal->encoder.init(HAL_PIN_ENCODER_A, HAL_PIN_ENCODER_B, HAL_PIN_PWR_WAKE_UP);
-
-
 
     // _wifi_test_start_task();
     _lcd_test();
@@ -51,7 +40,6 @@ void FactoryTest::onCreate()
     _rtc_wakeup_test();
 }
 
-
 void FactoryTest::onRunning()
 {
     /* If scrolled */
@@ -60,11 +48,9 @@ void FactoryTest::onRunning()
         // printf("%d\n", _data.hal->encoder.getPosition());
         if (_data.hal->encoder.getDirection() < 1)
         {
-
         }
         else
         {
-
         }
     }
 
@@ -87,8 +73,4 @@ void FactoryTest::onRunning()
     }
 }
 
-
-void FactoryTest::onDestroy()
-{
-    _log("onDestroy");
-}
+void FactoryTest::onDestroy() { _log("onDestroy"); }

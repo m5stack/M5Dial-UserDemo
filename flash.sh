@@ -1,10 +1,7 @@
 #!/bin/bash
-### This is for lazzy shit like me to build -> flash - > monitor project
-### Use < usbipd wsl attach -a -b [BUSID] > on PowerShell to auto attach the board
-
 
 # Configs
-IDF_PATH=$HOME/esp/esp-idf
+IDF_PATH=$HOME/esp/esp-idf-v5.1.3/
 SERIAL_PORT=/dev/ttyACM0
 
 

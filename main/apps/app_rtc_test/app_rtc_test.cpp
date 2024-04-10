@@ -1,19 +1,17 @@
 /**
  * @file app_rtc_test.cpp
  * @author Forairaaaaa
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2023-08-03
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  */
 #include "app_rtc_test.h"
 #include "../common_define.h"
 
-
 using namespace MOONCAKE::USER_APP;
-
 
 void RTC_Test::onSetup()
 {
@@ -27,13 +25,8 @@ void RTC_Test::onSetup()
     _data.hal = (HAL::HAL*)getUserData();
 }
 
-
 /* Life cycle */
-void RTC_Test::onCreate()
-{
-    _log("onCreate");
-}
-
+void RTC_Test::onCreate() { _log("onCreate"); }
 
 void RTC_Test::onRunning()
 {
@@ -55,14 +48,9 @@ void RTC_Test::onRunning()
         _log("%d:%d:%d", _data.rtc_time.tm_hour, _data.rtc_time.tm_min, _data.rtc_time.tm_sec);
 
         _gui.renderPage(_data.rtc_time.tm_hour, _data.rtc_time.tm_min, _data.rtc_time.tm_sec);
-        
+
         _data.time_count = millis();
     }
 }
 
-
-void RTC_Test::onDestroy()
-{
-    _log("onDestroy");
-}
-
+void RTC_Test::onDestroy() { _log("onDestroy"); }

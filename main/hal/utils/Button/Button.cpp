@@ -22,9 +22,6 @@
 #define digitalRead(_pin) gpio_get_level((gpio_num_t)_pin)
 
 
-
-namespace SIMPLE_ENCODER_PCNT {
-
     Button::Button(uint8_t pin, uint16_t debounce_ms)
     :  _pin(pin)
     ,  _delay(debounce_ms)
@@ -126,4 +123,3 @@ namespace SIMPLE_ENCODER_PCNT {
         _delay = ms;
     }
 
-}
