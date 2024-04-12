@@ -1,7 +1,7 @@
 
 # M5Dial-UserDemo
 
-M5Dial user demo for hardware evaluation.
+[M5Dial](https://docs.m5stack.com/en/core/M5Dial) user demo for hardware evaluation.
 
 ## Environment set up
 
