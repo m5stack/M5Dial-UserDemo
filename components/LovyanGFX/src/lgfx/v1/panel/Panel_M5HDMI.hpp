@@ -17,6 +17,7 @@ Contributors:
 /----------------------------------------------------------------------------*/
 #pragma once
 
+#include <cstdint>
 #include "Panel_Device.hpp"
 #include "../platforms/common.hpp"
 #include "../platforms/device.hpp"
