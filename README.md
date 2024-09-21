@@ -3,14 +3,18 @@
 
 M5Dial user demo for hardware evaluation.
 
-### Tool Chains
-
-[ESP-IDF v5.1.3](https://docs.espressif.com/projects/esp-idf/en/v5.1.3/esp32s3/index.html)
+## Toolkit
+[PlatformIO Core](http://docs.platformio.org/page/core.html)
 
 ### Build
 
 ```bash
-git clone https://github.com/m5stack/M5Dial-UserDemo.git
-cd M5Dial-UserDemo
-idf.py build
+# Build project
+$ pio run
+
+# Upload firmware
+$ pio run --target upload
+
+# Clean build files
+$ pio run --target clean
 ```
