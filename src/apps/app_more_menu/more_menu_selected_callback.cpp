@@ -11,9 +11,7 @@
 #include "app_more_menu.h"
 #include "../common_define.h"
 
-
-#define USE_LVGL_DEMO
-
+#define USE_LVGL_DEMO 1
 
 #ifdef USE_LVGL_DEMO
 #include <hal/lvgl/hal_lvgl.hpp>
@@ -93,19 +91,19 @@ void MoreMenu::_callback_lvgl(const std::string& selectedTag)
 
 
     /* Start demo */
-    // TODO: fix lv apps
-    // if (selectedTag == "LVGL Widgets")
-    // {
-    //     lv_demo_widgets();
-    // }
-    // else if (selectedTag == "LVGL Stress")
-    // {
-    //     lv_demo_stress();
-    // }
-    // else if (selectedTag == "LVGL Benchmark")
-    // {
-    //     lv_demo_benchmark();
-    // }
+    if (selectedTag == "LVGL Widgets")
+    {
+        lv_demo_widgets();
+    }
+    else if (selectedTag == "LVGL Stress")
+    {
+        lv_demo_stress();
+
+    }
+    else if (selectedTag == "LVGL Benchmark")
+    {
+        lv_demo_benchmark();
+    }
 
 
 
