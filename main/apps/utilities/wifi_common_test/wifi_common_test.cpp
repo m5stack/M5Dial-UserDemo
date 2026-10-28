@@ -199,8 +199,8 @@ namespace WIFI_COMMON_TEST
             ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
             ESP_ERROR_CHECK(esp_wifi_start());
             esp_wifi_scan_start(NULL, true);
-            ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
             ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
+            ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
             ESP_LOGI(TAG, "Total APs scanned = %u", ap_count);
 
 
@@ -302,8 +302,8 @@ namespace WIFI_COMMON_TEST
             ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
             ESP_ERROR_CHECK(esp_wifi_start());
             esp_wifi_scan_start(NULL, true);
-            ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
             ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
+            ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
             ESP_LOGI(TAG, "Total APs scanned = %u", ap_count);
 
 
